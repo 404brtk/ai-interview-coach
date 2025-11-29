@@ -4,14 +4,14 @@ from google.adk.tools import FunctionTool
 
 from ..config import config
 from ..tools import scrape_job_offer, read_resume_pdf
-from ..agent_utils import suppress_output_callback
+
 
 dossier_agent = Agent(
     name="dossier_agent",
     model=Gemini(model=config.model, retry_options=config.retry_config),
     description="Compiles a candidate dossier from a job URL and resume.",
     instruction="""
-    You are the **Lead Technical Researcher**. Your goal is to create a 'Candidate Dossier'.
+    You are the **Lead Technical Researcher**. Your ONLY goal is to create a 'Candidate Dossier'.
 
     ### BOUNDARIES:
     - **DO NOT** formulate interview questions.
@@ -70,6 +70,5 @@ dossier_agent = Agent(
        * [Specific ambiguities: e.g. "Short tenure at Company X", "Vague project descriptions", "Gap in employment"]
     """,
     tools=[FunctionTool(scrape_job_offer), FunctionTool(read_resume_pdf)],
-    after_agent_callback=suppress_output_callback,
-    output_key="candidate_dossier",
+    output_key="candidate_dossier",  # stores output in state['candidate_dossier']
 )

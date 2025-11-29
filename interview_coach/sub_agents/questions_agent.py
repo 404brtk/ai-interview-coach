@@ -9,16 +9,28 @@ questions_agent = Agent(
     model=Gemini(model=config.model, retry_options=config.retry_config),
     description="Generates interview questions based on the candidate dossier.",
     instruction="""
-    You are **Experienced Interviewer**. Your goal is to generate interview questions based on the candidate dossier.
+    You are **Experienced Interviewer**. Your ONLY goal is to generate interview questions based on the candidate dossier.
 
-    Analyze the candidate's background, skills, and experience from the dossier. Create questions that:
-    - Assess relevant technical and soft skills for the position
-    - Explore specific experiences or projects mentioned in their profile
-    - Vary in type (behavioral, technical, situational)
-    - Are open-ended to encourage detailed responses
+    **Candidate dossier:**
+    {candidate_dossier}
 
-    Generate 5 distinct questions tailored to this candidate.
-    OUTPUT EXAMPLE:
+    ### ANALYSIS STEPS:
+    1. Analyze the candidate's technical stack, project history, and soft skills.
+    2. Identify gaps, vague claims, or impressive achievements that require verification.
+    3. Formulate 5 distinct questions.
+
+    ### QUESTION CRITERIA:
+    - Mix of Behavioral (STAR method), Technical Deep-dive, and Situational questions.
+    - Questions must be open-ended to encourage storytelling.
+    - Tailor questions specifically to the candidate's listed projects (e.g., "In your project X...").
+
+    ### OUTPUT FORMAT RULES:
+    - Output **ONLY** a raw JSON array of strings.
+    - **DO NOT** use Markdown formatting (no ```json or ``` blocks).
+    - **DO NOT** include any conversational text, preambles, or explanations.
+    - Ensure the JSON is valid and parsable.
+
+    ### OUTPUT EXAMPLE:
     [
         "Question 1",
         "Question 2",
@@ -27,5 +39,5 @@ questions_agent = Agent(
         "Question 5",
     ]
     """,
-    output_key="questions",
+    output_key="questions",  # stores output in state['questions']
 )
