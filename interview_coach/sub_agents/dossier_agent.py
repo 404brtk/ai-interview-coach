@@ -3,7 +3,12 @@ from google.adk.models.google_llm import Gemini
 from google.adk.tools import FunctionTool
 
 from ..config import config
-from ..tools import scrape_job_offer, read_resume_pdf, save_resume_memory
+from ..tools import (
+    scrape_job_offer,
+    read_resume_pdf,
+    save_resume_memory,
+    get_stored_resume,
+)
 
 
 dossier_agent = Agent(
@@ -20,12 +25,13 @@ dossier_agent = Agent(
 
     1. **Inputs**: The user will provide:
        - A **URL** for the Job Description.
-       - A **Resume** (PDF file, PDF file path, or raw text).
+       - A **Resume**: Might be provided as File/Path/Text OR might be missing (if it's in memory).
 
     2. **Action**: 
        - Use `scrape_job_offer` for the URL.
          - If provided a file path, use `read_resume_pdf`.
          - If provided text or file content directly, use it.
+         - If not provided, use `get_stored_resume`. to load from memory.
          - Once you have the resume text, call `save_resume_memory` to save it to the user's profile (unless it was already loaded from memory).
        - If ANY tool fails, STOP and report error.
 
@@ -75,6 +81,7 @@ dossier_agent = Agent(
         FunctionTool(scrape_job_offer),
         FunctionTool(read_resume_pdf),
         FunctionTool(save_resume_memory),
+        FunctionTool(get_stored_resume),
     ],
     output_key="candidate_dossier",  # stores output in state['candidate_dossier']
 )
