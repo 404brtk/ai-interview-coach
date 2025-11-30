@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import os
 import pypdf
+import json
 
 
 def scrape_job_offer(url: str) -> dict:
@@ -106,3 +107,52 @@ def read_resume_pdf(file_path: str) -> dict:
             "status": "error",
             "error_message": f"Error reading PDF file: {str(e)}",
         }
+
+
+PROFILE_PATH = "user_profile.json"
+
+
+def get_stored_resume() -> dict:
+    """
+    Checks long-term memory (local file) for an existing resume text.
+
+    Returns:
+        dict: status and content (or NOT_FOUND).
+    """
+    if os.path.exists(PROFILE_PATH):
+        try:
+            with open(PROFILE_PATH, "r") as f:
+                data = json.load(f)
+                text = data.get("resume_text", "")
+                if text:
+                    return {
+                        "status": "success",
+                        "content": text,
+                        "message": "Resume loaded from long-term memory.",
+                    }
+        except Exception as e:
+            return {"status": "error", "error_message": f"Corrupt profile file: {e}"}
+
+    return {
+        "status": "success",
+        "content": "NOT_FOUND",
+        "message": "No resume found in memory.",
+    }
+
+
+def save_resume_memory(resume_text: str) -> dict:
+    """
+    Saves resume text to long-term memory.
+
+    Args:
+        resume_text (str): The text content of the resume.
+
+    Returns:
+        dict: success status.
+    """
+    try:
+        with open(PROFILE_PATH, "w") as f:
+            json.dump({"resume_text": resume_text}, f)
+        return {"status": "success", "message": "Resume saved to long-term memory."}
+    except Exception as e:
+        return {"status": "error", "error_message": f"Failed to save resume: {str(e)}"}
