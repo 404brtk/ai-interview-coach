@@ -1,6 +1,7 @@
 from google.adk.agents import Agent
 from google.adk.models.google_llm import Gemini
 from ..config import config
+from ..agent_utils import check_completion_callback
 
 interview_conductor_agent = Agent(
     name="interview_conductor_agent",
@@ -19,6 +20,10 @@ interview_conductor_agent = Agent(
        - If the answer is correct/complete: Give brief, constructive feedback, then move to the next question.
        - If partial/wrong: Ask a targeted follow-up to dig deeper. Do NOT give the answer away.
        - If the candidate asks for help: Provide a hint, not the solution.
+       - If the candidate explicitly asks to **skip** or says they **don't know** (and declines a hint):
+         1. Provide the **correct high-level answer** (briefly explain the concept).
+         2. Move to the next question
+
     3. **Tracking:** Maintain internal awareness of which questions have been asked.
 
     ### EVALUATION RUBRIC
@@ -27,6 +32,9 @@ interview_conductor_agent = Agent(
     - **Communication:** Is the explanation clear and structured?
 
     **Tone:** Professional, encouraging, and inquisitive.
+
+    IMPORTANT: When you have asked all questions and finished the interview, append `[INTERVIEW_COMPLETED]` to your final goodbye message.
     """,
     output_key="interview_result",  # stores output in state['interview_result']
+    after_model_callback=check_completion_callback,
 )
